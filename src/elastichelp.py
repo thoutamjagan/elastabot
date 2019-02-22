@@ -4,6 +4,13 @@ from elasticsearch import Urllib3HttpConnection
 from elasticsearch.client import Elasticsearch
 from elasticsearch.client import ClusterClient
 
+
+class CustomConnection(Urllib3HttpConnection):
+    def __init__(self, *args, **kwargs):
+        extra_headers = kwargs.pop('extra_headers', {})
+        super(CustomConnection, self).__init__(*args, **kwargs)
+        self.headers.update(extra_headers)
+
 # Creates an Elasticsearch client via options stored in the provided config file
 def createElasticsearchClient(conf):
   auth = None
@@ -15,11 +22,7 @@ def createElasticsearchClient(conf):
     auth = (username, password)
   return Elasticsearch(host=conf['elasticsearch']['host'],
                         port=conf['elasticsearch']['port'],
-                        url_prefix=conf['elasticsearch']['urlPrefix'],
-                        use_ssl=conf['elasticsearch']['sslEnabled'],
-                        verify_certs=conf['elasticsearch']['sslStrictEnabled'],
-                        http_auth=auth,
-                        timeout=conf['elasticsearch']['timeoutSeconds'],
+                        connection_class=CustomConnection,
                         extra_headers={'x-api-key':"{}".format(os.environ.get('ELASTICSEARCH_API_KEY'))}
                         )
 
