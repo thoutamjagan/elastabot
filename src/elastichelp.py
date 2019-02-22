@@ -1,5 +1,6 @@
 import os
 import elasticsearch
+from elasticsearch import Urllib3HttpConnection
 from elasticsearch.client import Elasticsearch
 from elasticsearch.client import ClusterClient
 
@@ -8,6 +9,8 @@ def createElasticsearchClient(conf):
   auth = None
   username = os.environ.get('ELASTICSEARCH_USERNAME')
   password = os.environ.get('ELASTICSEARCH_PASSWORD')
+  api_key  = os.environ.get('ELASTICSEARCH_API_KEY')
+
   if username and password:
     auth = (username, password)
   return Elasticsearch(host=conf['elasticsearch']['host'],
@@ -16,7 +19,9 @@ def createElasticsearchClient(conf):
                         use_ssl=conf['elasticsearch']['sslEnabled'],
                         verify_certs=conf['elasticsearch']['sslStrictEnabled'],
                         http_auth=auth,
-                        timeout=conf['elasticsearch']['timeoutSeconds'])
+                        timeout=conf['elasticsearch']['timeoutSeconds'],
+                        extra_headers={'x-api-key':"{}".format(os.environ.get('ELASTICSEARCH_API_KEY'))}
+                        )
 
 # Queries health of the Elasticsearch cluster
 def health(conf, args):
