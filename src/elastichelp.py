@@ -1,9 +1,8 @@
 import os
 import elasticsearch
-from elasticsearch import Urllib3HttpConnection
+from elasticsearch import Elasticsearch, Urllib3HttpConnection
 from elasticsearch.client import Elasticsearch
 from elasticsearch.client import ClusterClient
-
 
 class CustomConnection(Urllib3HttpConnection):
     def __init__(self, *args, **kwargs):
@@ -18,9 +17,8 @@ def createElasticsearchClient(conf):
   password = os.environ.get('ELASTICSEARCH_PASSWORD')
   api_key  = os.environ.get('ELASTICSEARCH_API_KEY')
 
-  if username and password:
-    auth = (username, password)
-  return Elasticsearch(host=conf['elasticsearch']['host'],
+  if api_key:
+    return Elasticsearch(host=conf['elasticsearch']['host'],
                         port=conf['elasticsearch']['port'],
                         connection_class=CustomConnection,
                         extra_headers={'x-api-key':"{}".format(os.environ.get('ELASTICSEARCH_API_KEY'))}
