@@ -13,17 +13,12 @@ class CustomConnection(Urllib3HttpConnection):
 # Creates an Elasticsearch client via options stored in the provided config file
 def createElasticsearchClient(conf):
   auth = None
-  username = os.environ.get('ELASTICSEARCH_USERNAME')
-  password = os.environ.get('ELASTICSEARCH_PASSWORD')
-  api_key  = os.environ.get('ELASTICSEARCH_API_KEY')
 
-  if api_key:
-    return Elasticsearch(host=conf['elasticsearch']['host'],
-                        port=conf['elasticsearch']['port'],
-                        connection_class=CustomConnection,
-                        extra_headers={'x-api-key':"{}".format(os.environ.get('ELASTICSEARCH_API_KEY'))}
-                        )
-
+    return  Elasticsearch(
+            ["{}:{}".format(os.environ.get('ELASTICSEARCH_HOST'), os.environ.get('ELASTICSEARCH_PORT'))],
+        connection_class=CustomConnection,
+        extra_headers={'x-api-key':"{}".format(os.environ.get('ELASTICSEARCH_API_KEY'))}
+    )
 # Queries health of the Elasticsearch cluster
 def health(conf, args):
   if args == "help" or args == "-help":
